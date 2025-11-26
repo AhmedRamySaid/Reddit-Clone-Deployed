@@ -29,7 +29,6 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-
 /*
 Gets the user whose email is equal to p_email
 Changes that user's about me
@@ -47,6 +46,24 @@ $$ LANGUAGE plpgsql;
 
 /*
 Gets the user whose email is equal to p_email
+Returns that user's password
+ */
+
+CREATE OR REPLACE FUNCTION get_user_password(p_email TEXT)
+RETURNS TEXT AS $$
+DECLARE
+    result TEXT;
+BEGIN
+    SELECT password INTO result
+    FROM users
+    WHERE email = p_email;
+
+    RETURN result;
+END;
+$$ LANGUAGE plpgsql;
+
+/*
+Gets the user whose email is equal to p_email
 Changes that user's password
  */
 CREATE OR REPLACE FUNCTION set_password(
@@ -59,7 +76,6 @@ BEGIN
     WHERE email = p_email;
 END;
 $$ LANGUAGE plpgsql;
-
 
 /*
 Gets the user whose email is equal to p_email

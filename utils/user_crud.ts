@@ -1,5 +1,5 @@
 import pkg from 'pg';
-import {hashPassword} from "./hash";
+import {HashPassword, VerifyPassword} from "./hash";
 const { Pool } = pkg;
 
 // Configure your database connection
@@ -28,7 +28,7 @@ const pool = new Pool({
  */
 async function CreateUser(email: string, username: string, password: string): Promise<void> {
     try {
-        const hashedPassword : string = await hashPassword(password);
+        const hashedPassword : string = await HashPassword(password);
         await pool.query('SELECT create_user($1, $2, $3)', [email, username, hashedPassword]);
         console.log('User created successfully');
     } catch (err) {
@@ -70,6 +70,25 @@ async function SetAboutMe(email: string, about_me : string): Promise<void> {
 }
 
 /**
+ * Gets the user's password given their email address.
+ *
+ * Accesses the first result of the query then checks if it is undefined.
+ * If undefined, returns null, else returns the hashed password.
+ *
+ * @param email - The user's email address.
+ * @returns A promise of either the user's hashed password or null if not found
+ */
+async function GetPassword(email: string): Promise<string | null> {
+    try {
+        const result = await pool.query('SELECT get_user_password($1)', [email]);
+        return result.rows[0]?.get_user_password || null;
+    } catch (err) {
+        console.error('Error changing password:', err);
+        throw err;
+    }
+}
+
+/**
  * Changes the user's password given their email address.
  * the password is given un-hashed and is hashed within the function itself.
  *
@@ -79,10 +98,32 @@ async function SetAboutMe(email: string, about_me : string): Promise<void> {
  */
 async function SetPassword(email: string, password : string): Promise<void> {
     try {
-        const hashed_password : string = await hashPassword(password);
+        const hashed_password : string = await HashPassword(password);
         await pool.query('SELECT set_password($1, $2)', [email, hashed_password]);
     } catch (err) {
         console.error('Error changing password:', err);
+        throw err;
+    }
+}
+
+/**
+ * Compares a plain-text password with the stored hashed password
+ * in the database given a user's email address.
+ * Returns true if they match, false if they don't or if user is not found.
+ *
+ * @param email - The user's email address.
+ * @param password - The plain-text password to compare.
+ * @returns A promise of a boolean of whether the passwords are equal or not.
+ */
+async function ComparePasswords(email: string, password: string): Promise<boolean> {
+    try {
+        const stored_password = await GetPassword(email);
+        if (stored_password === null) {
+            return false;
+        }
+        return await VerifyPassword(password, stored_password);
+    } catch (err) {
+        console.error('Error comparing passwords:', err);
         throw err;
     }
 }
