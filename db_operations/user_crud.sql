@@ -15,6 +15,26 @@ END;
 $$ LANGUAGE plpgsql;
 
 /*
+Gets a user given an email address
+ */
+CREATE OR REPLACE FUNCTION get_user_data(p_email TEXT)
+RETURNS TABLE (
+    email TEXT,
+    username TEXT,
+    profile_picture_link TEXT,
+    about_me TEXT,
+    created_on TIMESTAMP
+) AS $$
+BEGIN
+    RETURN QUERY
+    SELECT u.email, u.username, u.profile_picture_link, u.about_me, u.created_on
+    FROM users u
+    WHERE u.email = p_email;
+END;
+$$ LANGUAGE plpgsql;
+
+
+/*
 Gets the user whose email is equal to p_email
 Changes that user's profile picture
  */
@@ -28,6 +48,7 @@ BEGIN
     WHERE email = p_email;
 END;
 $$ LANGUAGE plpgsql;
+
 
 /*
 Gets the user whose email is equal to p_email
@@ -48,7 +69,6 @@ $$ LANGUAGE plpgsql;
 Gets the user whose email is equal to p_email
 Returns that user's password
  */
-
 CREATE OR REPLACE FUNCTION get_user_password(p_email TEXT)
 RETURNS TEXT AS $$
 DECLARE
@@ -61,6 +81,7 @@ BEGIN
     RETURN result;
 END;
 $$ LANGUAGE plpgsql;
+
 
 /*
 Gets the user whose email is equal to p_email

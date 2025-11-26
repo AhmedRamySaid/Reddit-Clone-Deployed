@@ -7,7 +7,7 @@ const { Pool } = pkg;
 const pool = new Pool({
     user: 'postgres',
     host: 'localhost',
-    database: 'reddit_database',
+    database: 'postgres',
     password: '12345678',
     port: 5432,
 });
@@ -40,14 +40,15 @@ export async function CreateUser(email: string, username: string, password: stri
 
 /**
  * Gets a user from the database given the user's email address.
+ * If no user found, return null
  *
  * @param email - The user's email address.
  * @returns A promise of either the User object or null if not found.
  */
 export async function GetUser(email: string): Promise<User | null> {
     try {
-        return await pool.query('SELECT * FROM get_user_data($1)', [email])
-            .then(res => res.rows[0]);
+        const res = await pool.query('SELECT * FROM get_user_data($1)', [email]);
+        return res.rows[0] ?? null;
     } catch (err) {
         console.error('Error finding user:', err);
         throw err;
