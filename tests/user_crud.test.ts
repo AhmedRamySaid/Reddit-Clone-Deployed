@@ -18,7 +18,7 @@ describe('User Service', () => {
     const testPfp = 'https://example.com/pfp.png';
     const testAboutMe = 'Hello, I am a test user!';
 
-    // Cleanup in case something fails
+    // Cleanup after all tests are done
     afterAll(async () => {
         await DeleteUser(testEmail).catch(() => {});
         await pool.end();
