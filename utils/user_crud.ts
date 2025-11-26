@@ -1,6 +1,6 @@
 import pkg from 'pg';
 import {HashPassword, VerifyPassword} from "./hash";
-import {User} from "./Interfaces";
+import {User} from "./interfaces";
 const { Pool } = pkg;
 
 // Configure your database connection
@@ -27,7 +27,7 @@ const pool = new Pool({
  * @param password - The user's password not hashed. The password is hashed within the function itself.
  * @returns A promise that resolves when the user is created.
  */
-async function CreateUser(email: string, username: string, password: string): Promise<void> {
+export async function CreateUser(email: string, username: string, password: string): Promise<void> {
     try {
         const hashedPassword : string = await HashPassword(password);
         await pool.query('SELECT create_user($1, $2, $3)', [email, username, hashedPassword]);
@@ -44,7 +44,7 @@ async function CreateUser(email: string, username: string, password: string): Pr
  * @param email - The user's email address.
  * @returns A promise of either the User object or null if not found.
  */
-async function GetUser(email: string): Promise<User | null> {
+export async function GetUser(email: string): Promise<User | null> {
     try {
         return await pool.query('SELECT * FROM get_user_data($1)', [email])
             .then(res => res.rows[0]);
@@ -61,7 +61,7 @@ async function GetUser(email: string): Promise<User | null> {
  * @param profile_pic_link - The link to the user's new profile picture.
  * @returns A promise that resolves when the user's profile picture is changed.
  */
-async function SetPfp(email: string, profile_pic_link : string): Promise<void> {
+export async function SetPfp(email: string, profile_pic_link : string): Promise<void> {
     try {
         await pool.query('SELECT set_profile_picture($1, $2)', [email, profile_pic_link]);
     } catch (err) {
@@ -77,7 +77,7 @@ async function SetPfp(email: string, profile_pic_link : string): Promise<void> {
  * @param about_me - The user's new about me.
  * @returns A promise that resolves when the user's about me is set.
  */
-async function SetAboutMe(email: string, about_me : string): Promise<void> {
+export async function SetAboutMe(email: string, about_me : string): Promise<void> {
     try {
         await pool.query('SELECT set_about_me($1, $2)', [email, about_me]);
     } catch (err) {
@@ -95,7 +95,7 @@ async function SetAboutMe(email: string, about_me : string): Promise<void> {
  * @param email - The user's email address.
  * @returns A promise of either the user's hashed password or null if not found
  */
-async function GetPassword(email: string): Promise<string | null> {
+export async function GetPassword(email: string): Promise<string | null> {
     try {
         const result = await pool.query('SELECT get_user_password($1)', [email]);
         return result.rows[0]?.get_user_password || null;
@@ -113,7 +113,7 @@ async function GetPassword(email: string): Promise<string | null> {
  * @param password - The user's new password un-hashed.
  * @returns A promise that resolves when the user's password is changed.
  */
-async function SetPassword(email: string, password : string): Promise<void> {
+export async function SetPassword(email: string, password : string): Promise<void> {
     try {
         const hashed_password : string = await HashPassword(password);
         await pool.query('SELECT set_password($1, $2)', [email, hashed_password]);
@@ -132,7 +132,7 @@ async function SetPassword(email: string, password : string): Promise<void> {
  * @param password - The plain-text password to compare.
  * @returns A promise of a boolean of whether the passwords are equal or not.
  */
-async function ComparePasswords(email: string, password: string): Promise<boolean> {
+export async function ComparePasswords(email: string, password: string): Promise<boolean> {
     try {
         const stored_password = await GetPassword(email);
         if (stored_password === null) {
@@ -152,7 +152,7 @@ async function ComparePasswords(email: string, password: string): Promise<boolea
  * @param email - The user's email address.
  * @returns A promise that resolves when the user is deleted.
  */
-async function DeleteUser(email: string): Promise<void> {
+export async function DeleteUser(email: string): Promise<void> {
     try {
         await pool.query('SELECT delete_user($1)', [email]);
     } catch (err) {
