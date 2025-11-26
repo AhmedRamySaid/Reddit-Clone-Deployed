@@ -1,5 +1,6 @@
 import pkg from 'pg';
 import {HashPassword, VerifyPassword} from "./hash";
+import {User} from "./Interfaces";
 const { Pool } = pkg;
 
 // Configure your database connection
@@ -33,6 +34,22 @@ async function CreateUser(email: string, username: string, password: string): Pr
         console.log('User created successfully');
     } catch (err) {
         console.error('Error creating user:', err);
+        throw err;
+    }
+}
+
+/**
+ * Gets a user from the database given the user's email address.
+ *
+ * @param email - The user's email address.
+ * @returns A promise of either the User object or null if not found.
+ */
+async function GetUser(email: string): Promise<User | null> {
+    try {
+        return await pool.query('SELECT * FROM get_user_data($1)', [email])
+            .then(res => res.rows[0]);
+    } catch (err) {
+        console.error('Error finding user:', err);
         throw err;
     }
 }
