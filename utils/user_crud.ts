@@ -80,7 +80,7 @@ async function SetAboutMe(email: string, about_me : string): Promise<void> {
 async function SetPassword(email: string, password : string): Promise<void> {
     try {
         const hashed_password : string = await hashPassword(password);
-        await pool.query('SELECT set_about_me($1, $2)', [email, hashed_password]);
+        await pool.query('SELECT set_password($1, $2)', [email, hashed_password]);
     } catch (err) {
         console.error('Error changing password:', err);
         throw err;
