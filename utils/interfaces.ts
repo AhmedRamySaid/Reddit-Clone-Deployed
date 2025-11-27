@@ -3,11 +3,14 @@ const { Pool } = pkg;
 
 // Configure your database connection
 const pool = new Pool({
-    user: 'postgres',
-    host: 'localhost',
-    database: 'postgres',
-    password: '12345678',
+    user: 'neondb_owner',
+    host: 'ep-cool-pond-ag6dlbgu-pooler.c-2.eu-central-1.aws.neon.tech',
+    database: 'neondb',
+    password: 'npg_ohLxKP8CJR9U',
     port: 5432,
+    ssl: {
+        rejectUnauthorized: false
+    }
 });
 
 // User data
